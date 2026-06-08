@@ -45,6 +45,11 @@ int g_hoverThemeIndex = -1;    // Thème survolé (-1 = aucun)
 static float g_pulsePhase = 0; // Phase du pulse (0 à 2*PI)
 BOOL g_alertPulse = FALSE;     // TRUE si CPU ou RAM en alerte
 
+// Polices GDI (créées une fois au démarrage, réutilisées à chaque WM_PAINT)
+static HFONT g_hFontTitle  = NULL;
+static HFONT g_hFontNormal = NULL;
+static HFONT g_hFontSmall  = NULL;
+
 static int GetWindowHeightForMode(BOOL minimal) {
     if (g_currentPage == PAGE_TASKS) {
         return WINDOW_HEIGHT_TASKS;
@@ -97,6 +102,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             SetTimer(hwnd, TIMER_ANIM, TIMER_ANIM_INTERVAL, NULL);
             HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
             CreateTrayIcon(hwnd, hInst);
+            // Créer les polices une seule fois
+            g_hFontTitle = CreateFont(FONT_TITLE_SIZE, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_TITLE_NAME);
+            g_hFontNormal = CreateFont(FONT_NORMAL_SIZE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_NORMAL_NAME);
+            g_hFontSmall = CreateFont(FONT_SMALL_SIZE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_SMALL_NAME);
             // Démarrer avec fade-in
             g_currentAlpha = 0;
             g_targetAlpha = WINDOW_OPACITY;
@@ -199,16 +214,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             FillRect(hdc, &clientRect, bgBrush);
             DeleteObject(bgBrush);
 
-            // Polices
-            HFONT hFontTitle = CreateFont(FONT_TITLE_SIZE, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_TITLE_NAME);
-            HFONT hFontNormal = CreateFont(FONT_NORMAL_SIZE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_NORMAL_NAME);
-            HFONT hFontSmall = CreateFont(FONT_SMALL_SIZE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-                CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_MODERN, FONT_SMALL_NAME);
+            // Polices (réutilisées depuis les globaux créés dans WM_CREATE)
+            HFONT hFontNormal = g_hFontNormal;
+            HFONT hFontSmall  = g_hFontSmall;
 
             SetBkMode(hdc, TRANSPARENT);
 
@@ -226,31 +234,30 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                 DrawCompactMode(hdc, width, height, hFontNormal);
 
-                DeleteObject(hFontTitle);
-                DeleteObject(hFontNormal);
-                DeleteObject(hFontSmall);
                 EndPaint(hwnd, &ps);
                 return 0;
             }
 
             // Mode normal: panneau complet
             RECT panelRect = {6, 8, width - 6, height - 6};
+
+            // Panneau
             HBRUSH panelBrush = CreateSolidBrush(g_colorPanel);
             FillRect(hdc, &panelRect, panelBrush);
             DeleteObject(panelBrush);
 
-            // Bordure (pulse rouge si alerte)
+            // Bordure avec pulse si alerte
             COLORREF borderColor = g_colorBorder;
             int borderWidth = 1;
             if (g_alertPulse && g_config.animations_enabled) {
-                // Pulse entre rouge et couleur normale
-                float pulse = (float)(sin(g_pulsePhase) * 0.5 + 0.5); // 0 à 1
+                float pulse = (float)(sin(g_pulsePhase) * 0.5 + 0.5);
                 int r = (int)(255 * pulse + GetRValue(g_colorBorder) * (1 - pulse));
                 int g = (int)(50 * pulse + GetGValue(g_colorBorder) * (1 - pulse));
                 int b = (int)(50 * pulse + GetBValue(g_colorBorder) * (1 - pulse));
                 borderColor = RGB(r, g, b);
                 borderWidth = 2;
             }
+
             HPEN borderPen = CreatePen(PS_SOLID, borderWidth, borderColor);
             SelectObject(hdc, borderPen);
             MoveToEx(hdc, panelRect.left, panelRect.top, NULL);
@@ -260,7 +267,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             LineTo(hdc, panelRect.left, panelRect.top);
             DeleteObject(borderPen);
 
-            // Accent haut (pulse si alerte)
+            // Accent haut avec pulse si alerte
             COLORREF accentColor = g_colorAccent2;
             if (g_alertPulse && g_config.animations_enabled) {
                 float pulse = (float)(sin(g_pulsePhase) * 0.5 + 0.5);
@@ -345,9 +352,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 TextOut(hdc, 16, height - 26, "F2 compact | F4 tasks", 21);
             }
 
-            DeleteObject(hFontTitle);
-            DeleteObject(hFontNormal);
-            DeleteObject(hFontSmall);
             EndPaint(hwnd, &ps);
             return 0;
         }
@@ -640,6 +644,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             CleanupTaskKiller();
             CleanupPluginSystem();
             CleanupPerformanceMonitoring();
+            if (g_hFontTitle)  { DeleteObject(g_hFontTitle);  g_hFontTitle  = NULL; }
+            if (g_hFontNormal) { DeleteObject(g_hFontNormal); g_hFontNormal = NULL; }
+            if (g_hFontSmall)  { DeleteObject(g_hFontSmall);  g_hFontSmall  = NULL; }
             PostQuitMessage(0);
             return 0;
     }

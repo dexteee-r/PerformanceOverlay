@@ -3,7 +3,7 @@
 
 # Compilateur et options
 CC = gcc
-CFLAGS = -Wall -O2 -mwindows
+CFLAGS = -Wall -O2 -mwindows -MMD -MP
 LIBS = -lgdi32 -luser32 -ladvapi32 -lpsapi -liphlpapi -lws2_32 -lole32 -luuid -lwininet
 
 # Dossiers
@@ -30,6 +30,9 @@ OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/performance.o $(BUILD_DIR)/config.o $
           $(BUILD_DIR)/plugin_network.o $(BUILD_DIR)/plugin_datetime.o \
           $(BUILD_DIR)/plugin_volume.o $(BUILD_DIR)/plugin_gpu.o $(BUILD_DIR)/plugin_prayer.o \
           $(BUILD_DIR)/resources.o
+
+# Fichiers de dépendances auto-générés par GCC (-MMD -MP)
+DEPS = $(OBJECTS:.o=.d)
 
 # Nom de l'exécutable
 TARGET = PerformanceOverlay_v2.exe
@@ -136,3 +139,6 @@ run: all
 	@$(TARGET)
 
 .PHONY: all clean rebuild run
+
+# Inclusion des fichiers de dépendances (générés automatiquement par GCC)
+-include $(DEPS)
