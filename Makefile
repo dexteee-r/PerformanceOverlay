@@ -20,7 +20,8 @@ SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/performance.c $(SRC_DIR)/config.c $(SRC_D
           $(PLUGIN_DIR)/plugin_cpu.c $(PLUGIN_DIR)/plugin_ram.c $(PLUGIN_DIR)/plugin_disk.c \
           $(PLUGIN_DIR)/plugin_uptime.c $(PLUGIN_DIR)/plugin_process.c \
           $(PLUGIN_DIR)/plugin_network.c $(PLUGIN_DIR)/plugin_datetime.c \
-          $(PLUGIN_DIR)/plugin_volume.c $(PLUGIN_DIR)/plugin_gpu.c $(PLUGIN_DIR)/plugin_prayer.c
+          $(PLUGIN_DIR)/plugin_volume.c $(PLUGIN_DIR)/plugin_gpu.c $(PLUGIN_DIR)/plugin_prayer.c \
+          $(PLUGIN_DIR)/plugin_claude_usage.c
 
 OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/performance.o $(BUILD_DIR)/config.o $(BUILD_DIR)/startup.o \
           $(BUILD_DIR)/metric_plugin.o $(BUILD_DIR)/config_parser.o $(BUILD_DIR)/taskkiller.o \
@@ -29,6 +30,7 @@ OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/performance.o $(BUILD_DIR)/config.o $
           $(BUILD_DIR)/plugin_uptime.o $(BUILD_DIR)/plugin_process.o \
           $(BUILD_DIR)/plugin_network.o $(BUILD_DIR)/plugin_datetime.o \
           $(BUILD_DIR)/plugin_volume.o $(BUILD_DIR)/plugin_gpu.o $(BUILD_DIR)/plugin_prayer.o \
+          $(BUILD_DIR)/plugin_claude_usage.o \
           $(BUILD_DIR)/resources.o
 
 # Fichiers de dépendances auto-générés par GCC (-MMD -MP)
@@ -118,6 +120,9 @@ $(BUILD_DIR)/plugin_gpu.o: $(PLUGIN_DIR)/plugin_gpu.c
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 
 $(BUILD_DIR)/plugin_prayer.o: $(PLUGIN_DIR)/plugin_prayer.c
+	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+
+$(BUILD_DIR)/plugin_claude_usage.o: $(PLUGIN_DIR)/plugin_claude_usage.c
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 
 # Compilation des ressources

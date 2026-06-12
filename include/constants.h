@@ -10,11 +10,12 @@
 #include <windows.h>
 
 // ===== DIMENSIONS FENÊTRE =====
-#define WINDOW_WIDTH 340
-#define WINDOW_WIDTH_COMPACT 200   // Largeur réduite en mode compact
-#define WINDOW_HEIGHT_FULL 280     // Augmenté pour 8 plugins
-#define WINDOW_HEIGHT_MIN 220      // Augmenté pour les plugins essentiels
-#define WINDOW_HEIGHT_COMPACT 74   // Mode compact (CPU + RAM + DateTime + Prière)
+// (dimensionnées pour des polices +2px, cf. section Polices)
+#define WINDOW_WIDTH 372
+#define WINDOW_WIDTH_COMPACT 232   // Largeur réduite en mode compact
+#define WINDOW_HEIGHT_FULL 338     // Augmenté (polices +2px + ligne ClaudeUsage)
+#define WINDOW_HEIGHT_MIN 242      // Augmenté pour les plugins essentiels
+#define WINDOW_HEIGHT_COMPACT 102  // Mode compact (CPU + RAM + DateTime + Prière + Claude)
 #define WINDOW_HEIGHT_TASKS 320    // Hauteur pour la page Task Killer
 #define WINDOW_HEIGHT_SETTINGS 350 // Hauteur pour la page Settings
 
@@ -25,8 +26,8 @@
 #define PAGE_COUNT 3
 
 // Dimensions onglets
-#define TAB_HEIGHT 18
-#define TAB_WIDTH 80
+#define TAB_HEIGHT 20
+#define TAB_WIDTH 88
 #define TAB_MARGIN 4
 
 // ===== TIMERS ET PERFORMANCE =====
@@ -56,13 +57,13 @@
 // ===== INTERFACE =====
 #define WINDOW_CLASS_NAME "PerformanceOverlayClass"
 
-// Polices
+// Polices (taille +2px par rapport à l'origine 16/12/11)
 #define FONT_TITLE_NAME "Consolas"
-#define FONT_TITLE_SIZE 16
+#define FONT_TITLE_SIZE 18
 #define FONT_NORMAL_NAME "Consolas"
-#define FONT_NORMAL_SIZE 12
+#define FONT_NORMAL_SIZE 14
 #define FONT_SMALL_NAME "Consolas"
-#define FONT_SMALL_SIZE 11
+#define FONT_SMALL_SIZE 13
 
 // Largeurs des barres de progression
 #define PROGRESS_BAR_WIDTH 22
@@ -70,6 +71,10 @@
 // ===== FICHIERS =====
 #define CONFIG_FILE "config.txt"
 #define CONFIG_FILE_INI "config.ini"
+
+// ===== CLAUDE USAGE =====
+#define CLAUDE_BASELINE_DAYS 28   // Fenêtre de moyenne glissante (jours)
+#define CLAUDE_RESCAN_MS 60000    // Intervalle de re-scan des logs (1 min)
 
 // ===== TASK KILLER =====
 #define MAX_PROCESSES 50      // Nombre max de processus affichés

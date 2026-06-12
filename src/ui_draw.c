@@ -377,6 +377,7 @@ void DrawCompactMode(HDC hdc, int width, int height, HFONT hFont) {
     MetricData* ram      = GetMetricByName("RAM");
     MetricData* datetime = GetMetricByName("DateTime");
     MetricData* prayer   = GetMetricByName("Prayer");
+    MetricData* claude   = GetMetricByName("ClaudeUsage");
 
     // === Ligne 1 : CPU | RAM (y=8) ===
     int x  = 12;
@@ -415,14 +416,14 @@ void DrawCompactMode(HDC hdc, int width, int height, HFONT hFont) {
         TextOut(hdc, x, y1, val, (int)strlen(val));
     }
 
-    // === Séparateur horizontal (y=28) ===
+    // === Séparateur horizontal (y=31) ===
     HPEN sepPen = CreatePen(PS_SOLID, 1, g_colorBorder);
     SelectObject(hdc, sepPen);
-    MoveToEx(hdc, 8, 28, NULL);
-    LineTo(hdc, width - 8, 28);
+    MoveToEx(hdc, 8, 31, NULL);
+    LineTo(hdc, width - 8, 31);
     DeleteObject(sepPen);
 
-    // === Ligne 2 : Date + Heure (y=36) ===
+    // === Ligne 2 : Date + Heure (y=38) ===
     // Format source: "Time  Lun 20 Jan  14:35:22"  → offset 6 = "Time  "
     if (datetime && datetime->enabled && datetime->line_count > 0) {
         char dtDay[4] = {0}, dtMonth[4] = {0};
@@ -435,10 +436,10 @@ void DrawCompactMode(HDC hdc, int width, int height, HFONT hFont) {
                  dtDay, dtDayNum, dtMonth, dtH, dtM);
 
         SetTextColor(hdc, datetime->color);
-        TextOut(hdc, 12, 36, dtLine, (int)strlen(dtLine));
+        TextOut(hdc, 12, 38, dtLine, (int)strlen(dtLine));
     }
 
-    // === Ligne 3 : Prière (y=52) ===
+    // === Ligne 3 : Prière (y=59) ===
     // Format source: "Priere? %-8s %02d:%02d  (%dh%02d)"  (? = ' ' ou '*')
     // Offset 8 = longueur de "Priere? " → on tombe directement sur le nom
     if (prayer && prayer->enabled && prayer->line_count > 0) {
@@ -451,14 +452,22 @@ void DrawCompactMode(HDC hdc, int width, int height, HFONT hFont) {
         x = 12;
 
         SetTextColor(hdc, prayer->color);
-        TextOut(hdc, x, 52, prayerName, (int)strlen(prayerName));
+        TextOut(hdc, x, 59, prayerName, (int)strlen(prayerName));
         x += 58;
 
         SetTextColor(hdc, g_colorTextMuted);
-        TextOut(hdc, x, 52, prayerTime, (int)strlen(prayerTime));
+        TextOut(hdc, x, 59, prayerTime, (int)strlen(prayerTime));
         x += 44;
 
         SetTextColor(hdc, prayer->color);
-        TextOut(hdc, x, 52, remaining, (int)strlen(remaining));
+        TextOut(hdc, x, 59, remaining, (int)strlen(remaining));
+    }
+
+    // === Ligne 4 : Claude usage (y=80) ===
+    // Format source: "Claude  J%3d%%  S%3d%%" ou "Claude  -- (pas de logs)"
+    if (claude && claude->enabled && claude->line_count > 0) {
+        SetTextColor(hdc, claude->color);
+        TextOut(hdc, 12, 80, claude->display_lines[0],
+                (int)strlen(claude->display_lines[0]));
     }
 }

@@ -19,6 +19,7 @@ extern MetricPlugin DateTimePlugin;
 extern MetricPlugin VolumePlugin;
 extern MetricPlugin GPUPlugin;
 extern MetricPlugin PrayerPlugin;
+extern MetricPlugin ClaudeUsagePlugin;
 
 // Configuration des prieres (ancienne fonction pour compatibilite)
 void SetPrayerTimes(const char* fajr, const char* dhuhr, const char* asr,

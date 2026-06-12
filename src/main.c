@@ -302,14 +302,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 DrawSettingsPage(hdc, width, height, hFontNormal, hFontSmall);
             } else {
                 // Page Performance normale
-                int y = 50;
+                int y = 53;
 
                 // Uptime
                 MetricData* uptime = GetMetricByName("Uptime");
                 if (uptime && uptime->enabled && g_config.show_uptime) {
                     SetTextColor(hdc, uptime->color);
                     TextOut(hdc, 16, y, uptime->display_lines[0], (int)strlen(uptime->display_lines[0]));
-                    y += 12;
+                    y += 14;
                 }
 
                 // Prayer
@@ -317,7 +317,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if (prayer && prayer->enabled && g_config.prayer_enabled) {
                     SetTextColor(hdc, prayer->color);
                     TextOut(hdc, 16, y, prayer->display_lines[0], (int)strlen(prayer->display_lines[0]));
-                    y += 14;
+                    y += 16;
                 }
 
                 // Separation
@@ -326,11 +326,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 MoveToEx(hdc, 14, y + 6, NULL);
                 LineTo(hdc, width - 14, y + 6);
                 DeleteObject(sepPen);
-                y += 14;
+                y += 16;
 
                 // Metriques
-                const char* pluginOrder[] = {"CPU", "RAM", "GPU", "Disk", "Process", "Volume", "DateTime"};
-                int pluginCount = 7;
+                const char* pluginOrder[] = {"CPU", "RAM", "GPU", "Disk", "Process", "Volume", "DateTime", "ClaudeUsage"};
+                int pluginCount = 8;
 
                 for (int i = 0; i < pluginCount; i++) {
                     MetricData* metric = GetMetricByName(pluginOrder[i]);
@@ -341,7 +341,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         for (int line = 0; line < metric->line_count; line++) {
                             TextOut(hdc, 16, y, metric->display_lines[line],
                                     (int)strlen(metric->display_lines[line]));
-                            y += 18;
+                            y += 20;
                         }
                     }
                 }
@@ -349,7 +349,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 // Footer
                 SelectObject(hdc, hFontSmall);
                 SetTextColor(hdc, g_colorTextMuted);
-                TextOut(hdc, 16, height - 26, "F2 compact | F4 tasks", 21);
+                TextOut(hdc, 16, height - 29, "F2 compact | F4 tasks", 21);
             }
 
             EndPaint(hwnd, &ps);
@@ -719,6 +719,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     RegisterMetricPlugin(&VolumePlugin);
     RegisterMetricPlugin(&GPUPlugin);
     RegisterMetricPlugin(&PrayerPlugin);
+    RegisterMetricPlugin(&ClaudeUsagePlugin);
 
     SetPrayerConfig(g_config.prayer_city, g_config.prayer_country,
                     g_config.prayer_method, g_config.prayer_use_api,
@@ -737,6 +738,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     EnablePlugin("DateTime", TRUE);
     EnablePlugin("Volume", TRUE);
     EnablePlugin("GPU", TRUE);
+    EnablePlugin("ClaudeUsage", TRUE);
 
     InitTaskKiller();
     InitBanner();
