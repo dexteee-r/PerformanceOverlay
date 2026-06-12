@@ -1,72 +1,13 @@
-# Fichiers compilés
-*.exe
-*.o
-*.obj
-*.res
-*.dll
-*.so
-*.dylib
+# Build artefacts
+/build/
+/dist/
 
-# Dossier de build
-build/
-bin/
+# Qt Creator / IDE
+*.user
+*.user.*
+CMakeLists.txt.user*
 
-# Fichiers de configuration générés (créés au runtime)
-config.txt
-config.ini
-
-# Fichiers temporaires Windows
-Thumbs.db
-Desktop.ini
-ehthumbs.db
-
-# Fichiers IDE / Éditeurs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Fichiers de log
-*.log
-
-# Cache Python (si create_icon.py est utilisé)
-__pycache__/
-*.pyc
-*.pyo
-
-# Fichiers système MacOS
-.DS_Store
-
-# Fichiers temporaires de compilation
-*.i
-*.s
-*.bc
-*.d
-
-# Dossiers de dépendances
-vendor/
-node_modules/
-
-# Dossiers de dev (non nécessaires pour release)
-inspi/
-other compilator's/
-
-# Fichiers de test temporaires
-test_*.c
-test_*.exe
-test_*.bat
-
-# Packages de release (seront dans releases GitHub)
-*.zip
-Performance-Overlay-*/
-
-# Fichiers de backup
-*.bak
-*.backup
-
-# Dossiers temporaires
-temp_check/
-
-# Fichier nul Windows
-nul
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
