@@ -97,24 +97,7 @@ Item {
                     anchors.fill: parent
                     spacing: 10
                     Item {
-                        id: gpuGaugeArea
                         Layout.fillWidth: true; Layout.fillHeight: true
-                        clip: true
-
-                        Rectangle {                       // scanline GPU
-                            visible: Metrics.gpu.available
-                            width: parent.width; height: 64; y: -64; opacity: 0.7
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: "transparent" }
-                                GradientStop { position: 0.5; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.10) }
-                                GradientStop { position: 1.0; color: "transparent" }
-                            }
-                            SequentialAnimation on y {
-                                loops: Animation.Infinite; running: true
-                                NumberAnimation { from: -64; to: gpuGaugeArea.height; duration: 2400; easing.type: Easing.InOutQuad }
-                                PauseAnimation { duration: 1400 }
-                            }
-                        }
 
                         CircularGauge {
                             anchors.centerIn: parent
@@ -167,7 +150,7 @@ Item {
             // ----- FLUX DE CHARGE (hero) -----
             Panel {
                 Layout.fillWidth: true; Layout.fillHeight: true
-                Layout.preferredHeight: 420
+                Layout.preferredHeight: 340
                 title: "FLUX DE CHARGE"
                 statusColor: Theme.statusColor(Metrics.systemLoad)
                 tag: "CPU · GPU"
@@ -192,7 +175,7 @@ Item {
             // ----- STOCKAGE -----
             Panel {
                 Layout.fillWidth: true; Layout.fillHeight: true
-                Layout.preferredHeight: 200
+                Layout.preferredHeight: 170
                 title: "STOCKAGE"
                 ColumnLayout {
                     anchors.fill: parent
@@ -216,6 +199,42 @@ Item {
                         }
                     }
                     Item { Layout.fillHeight: true }
+                }
+            }
+
+            // ----- RÉSEAU -----
+            Panel {
+                Layout.fillWidth: true; Layout.fillHeight: true
+                Layout.preferredHeight: 110
+                title: "RÉSEAU"
+                tag: Metrics.network.ipAddress
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 14
+                    ColumnLayout {
+                        Layout.preferredWidth: 160
+                        spacing: 8
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "↓"; color: Theme.accent; font.family: Theme.fontMono; font.pixelSize: 16 }
+                            Text { text: Fmt.rate(Metrics.network.downBytesPerSec); color: Theme.textHi
+                                   font.family: Theme.fontMono; font.pixelSize: 15; font.weight: Font.DemiBold
+                                   font.features: ({ "tnum": 1 }) }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text { text: "↑"; color: Theme.accent2; font.family: Theme.fontMono; font.pixelSize: 16 }
+                            Text { text: Fmt.rate(Metrics.network.upBytesPerSec); color: Theme.textHi
+                                   font.family: Theme.fontMono; font.pixelSize: 15; font.weight: Font.DemiBold
+                                   font.features: ({ "tnum": 1 }) }
+                        }
+                    }
+                    Sparkline {
+                        Layout.fillWidth: true; Layout.fillHeight: true
+                        values: Metrics.network.downHistory
+                        maxValue: 0
+                        lineColor: Theme.accent
+                    }
                 }
             }
         }
@@ -290,8 +309,6 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 0
-                    KV { Layout.fillWidth: true; k: "RÉSEAU"; v: Metrics.network.ipAddress
-                         vc: Metrics.network.ipAddress === "No Network" ? Theme.crit : Theme.textHi }
                     KV { Layout.fillWidth: true; k: "VOLUME"
                          v: Metrics.volume.muted ? "MUTE" : Metrics.volume.level.toFixed(0) + " %"
                          vc: Metrics.volume.muted ? Theme.crit : Theme.textHi }

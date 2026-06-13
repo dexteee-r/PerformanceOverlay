@@ -11,7 +11,7 @@ find_package(Qt6 6.8 REQUIRED COMPONENTS Quick QuickControls2 Gui Network Widget
 # Active AUTOMOC/AUTORCC + helpers QML modernes.
 qt_standard_project_setup(REQUIRES 6.8)
 
-# --- Exécutable (console pendant le dev : on veut voir les warnings QML) ---
+# --- Exécutable (app GUI Windows : pas de console — cf. WIN32_EXECUTABLE plus bas) ---
 qt_add_executable(appPerformanceOverlay
     src/app/main.cpp
     # core/metrics — providers de métriques (backend C++)
@@ -55,6 +55,9 @@ qt_add_executable(appPerformanceOverlay
     src/core/services/task_killer_model.h
     src/core/services/task_killer_model.cpp
 )
+
+# App GUI Windows : aucune fenêtre console ne s'ouvre au lancement.
+set_target_properties(appPerformanceOverlay PROPERTIES WIN32_EXECUTABLE TRUE)
 
 # Include paths : `src` pour les chemins longs, et les dossiers contenant des
 # types QML_ELEMENT pour que le code généré par qmltyperegistrar (qui inclut les
@@ -121,7 +124,8 @@ target_link_libraries(appPerformanceOverlay PRIVATE
     Qt6::Widgets          # QSystemTrayIcon (zone de notification)
 )
 
-# Libs Win32 : advapi32 (registre ~MHz/GPU), ole32 (COM volume), psapi (process).
+# Libs Win32 : advapi32 (registre), ole32 (COM volume), psapi (process),
+# iphlpapi (débit réseau GetIfTable2).
 if(WIN32)
-    target_link_libraries(appPerformanceOverlay PRIVATE advapi32 ole32 psapi)
+    target_link_libraries(appPerformanceOverlay PRIVATE advapi32 ole32 psapi iphlpapi)
 endif()

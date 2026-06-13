@@ -2,8 +2,20 @@
 
 #include <QNetworkInterface>
 
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
+#include <winsock2.h>
+#include <ws2ipdef.h>
+#include <windows.h>
+#include <iphlpapi.h>
+#include <netioapi.h>   // GetIfTable2 / MIB_IF_TABLE2 (pas tirés par iphlpapi.h sur MinGW)
+
 namespace {
-constexpr qint64 kRefreshMs = 30000;   // l'IP change rarement
+constexpr qint64 kIpRefreshMs = 30000;   // l'IP change rarement
 }
 
 NetworkProvider::NetworkProvider(QObject *parent) : MetricProvider(parent)
@@ -14,14 +26,15 @@ NetworkProvider::NetworkProvider(QObject *parent) : MetricProvider(parent)
 
 void NetworkProvider::poll()
 {
-    if (m_since.isValid() && m_since.elapsed() < kRefreshMs)
-        return;
-    m_since.restart();
+    sampleThroughput();   // débit : à chaque tick
 
-    const QString ip = resolveLocalIp();
-    if (ip != m_ip) {
-        m_ip = ip;
-        emit ipAddressChanged();
+    if (!m_since.isValid() || m_since.elapsed() >= kIpRefreshMs) {
+        m_since.restart();
+        const QString ip = resolveLocalIp();
+        if (ip != m_ip) {
+            m_ip = ip;
+            emit ipAddressChanged();
+        }
     }
 }
 
@@ -34,7 +47,6 @@ QString NetworkProvider::resolveLocalIp() const
             || !flags.testFlag(QNetworkInterface::IsRunning)
             || flags.testFlag(QNetworkInterface::IsLoopBack))
             continue;
-
         const auto entries = iface.addressEntries();
         for (const QNetworkAddressEntry &entry : entries) {
             const QHostAddress ip = entry.ip();
@@ -47,4 +59,43 @@ QString NetworkProvider::resolveLocalIp() const
         }
     }
     return QStringLiteral("No Network");
+}
+
+void NetworkProvider::sampleThroughput()
+{
+    // Somme des octets in/out de toutes les interfaces actives non-loopback.
+    quint64 totalIn = 0, totalOut = 0;
+    PMIB_IF_TABLE2 table = nullptr;
+    if (GetIfTable2(&table) == NO_ERROR && table) {
+        for (ULONG i = 0; i < table->NumEntries; ++i) {
+            const MIB_IF_ROW2 &r = table->Table[i];
+            if (r.OperStatus != IfOperStatusUp)
+                continue;
+            if (r.Type == IF_TYPE_SOFTWARE_LOOPBACK)
+                continue;
+            totalIn += r.InOctets;
+            totalOut += r.OutOctets;
+        }
+    }
+    if (table)
+        FreeMibTable(table);
+
+    if (m_firstRate) {
+        m_lastIn = totalIn;
+        m_lastOut = totalOut;
+        m_rateTimer.start();
+        m_firstRate = false;
+        return;
+    }
+
+    const double secs = qMax(0.001, m_rateTimer.restart() / 1000.0);
+    const double down = static_cast<double>(totalIn - m_lastIn) / secs;
+    const double up = static_cast<double>(totalOut - m_lastOut) / secs;
+    m_lastIn = totalIn;
+    m_lastOut = totalOut;
+
+    m_down = down;
+    m_up = up;
+    m_downHist.push(down);
+    emit ratesChanged();
 }

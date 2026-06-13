@@ -14,8 +14,15 @@ Item {
     property bool area: true
 
     readonly property int _n: values ? values.length : 0
+    // Auto-échelle quand maxValue <= 0 (débit réseau : amplitude variable).
+    readonly property real _peak: {
+        let m = 0
+        for (let i = 0; i < _n; i++) if (values[i] > m) m = values[i]
+        return m
+    }
+    readonly property real _max: maxValue > 0 ? maxValue : Math.max(1, _peak)
     function _x(i) { return _n > 1 ? i / (_n - 1) * width : 0 }
-    function _y(v) { return height - Math.max(0, Math.min(1, v / maxValue)) * height }
+    function _y(v) { return height - Math.max(0, Math.min(1, v / _max)) * height }
 
     readonly property var _line: {
         let pts = []

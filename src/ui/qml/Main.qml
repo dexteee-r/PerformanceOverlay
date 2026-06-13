@@ -6,8 +6,8 @@ import PerformanceOverlay
 // Le click-through (WS_EX_TRANSPARENT) viendra via un helper Win32 plus tard.
 Window {
     id: win
-    width: Nav.view === "compact" ? 360 : 1280
-    height: Nav.view === "compact" ? 560 : 720
+    width: 1280
+    height: 720
     visible: true
     color: "transparent"
     flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool
@@ -28,6 +28,41 @@ Window {
     Connections {
         target: Config
         function onLoaded() { win.applyConfig() }
+    }
+
+    // Écran qui contient le CENTRE de la fenêtre (= l'écran où est l'overlay,
+    // pas forcément le principal).
+    function screenForCenter() {
+        const cx = win.x + win.width / 2
+        const cy = win.y + win.height / 2
+        const list = Qt.application.screens
+        for (let i = 0; i < list.length; i++) {
+            const s = list[i]
+            if (cx >= s.virtualX && cx < s.virtualX + s.width
+                && cy >= s.virtualY && cy < s.virtualY + s.height)
+                return s
+        }
+        return list.length > 0 ? list[0] : null
+    }
+
+    // Géométrie selon la vue. Plein écran = remplit l'écran courant (borderless,
+    // pas de fullscreen exclusif → évite le bug de masquage au changement de focus).
+    function applyViewGeometry() {
+        if (Nav.view === "fullpage") {
+            const s = win.screenForCenter()
+            if (s) {
+                win.x = s.virtualX; win.y = s.virtualY
+                win.width = s.width; win.height = s.height
+            }
+        } else if (Nav.view === "compact") {
+            win.width = 360; win.height = 560
+        } else {
+            win.width = 1280; win.height = 720
+        }
+    }
+    Connections {
+        target: Nav
+        function onViewChanged() { win.applyViewGeometry() }
     }
 
     // Fond de glissement (déclaré en premier = couche basse). Les futurs
@@ -52,4 +87,5 @@ Window {
     Shortcut { sequence: "F2";  onActivated: Nav.view = "compact" }
     Shortcut { sequence: "F4";  onActivated: Nav.view = "tasks" }
     Shortcut { sequence: "F10"; onActivated: Nav.view = "settings" }
+    Shortcut { sequence: "F11"; onActivated: Nav.view = (Nav.view === "fullpage" ? "cockpit" : "fullpage") }
 }

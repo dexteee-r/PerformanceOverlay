@@ -15,7 +15,7 @@ class DateTimeProvider : public MetricProvider
     Q_PROPERTY(QDateTime now READ now NOTIFY nowChanged)
 
 public:
-    explicit DateTimeProvider(QObject *parent = nullptr) : MetricProvider(parent) {}
+    explicit DateTimeProvider(QObject *parent = nullptr);
 
     QDateTime now() const { return m_now; }
 

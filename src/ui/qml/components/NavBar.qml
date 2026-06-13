@@ -8,6 +8,7 @@ Row {
 
     readonly property var items: [
         ["cockpit", "COCKPIT"],
+        ["fullpage", "PLEIN"],
         ["compact", "COMPACT"],
         ["tasks", "TÂCHES"],
         ["settings", "RÉGLAGES"]

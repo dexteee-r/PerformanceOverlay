@@ -66,6 +66,25 @@ Item {
         opacity: 0.4 + 0.5 * cv.shown
     }
 
+    // ---- Onde d'énergie qui se propage vers l'extérieur (réactive à la charge) ----
+    Rectangle {
+        anchors.centerIn: parent
+        width: cv._d * 0.46; height: width; radius: width / 2
+        color: "transparent"
+        border.width: 2
+        border.color: cv.coreColor
+        SequentialAnimation on scale {
+            loops: Animation.Infinite; running: true
+            NumberAnimation { from: 0.7; to: 1.55; duration: 2600; easing.type: Easing.OutQuad }
+            PauseAnimation { duration: 200 }
+        }
+        SequentialAnimation on opacity {
+            loops: Animation.Infinite; running: true
+            NumberAnimation { from: 0.0; to: 0.55 * (0.4 + cv.shown); duration: 600 }
+            NumberAnimation { to: 0.0; duration: 2200 }
+        }
+    }
+
     // ---- Anneau de graduations en rotation (décor, net, pas de blur) ----
     Item {
         id: ticks
@@ -84,7 +103,7 @@ Item {
             }
         }
         RotationAnimator on rotation {
-            from: 0; to: 360; duration: 36000; loops: Animation.Infinite; running: true
+            from: 0; to: 360; duration: 44000; loops: Animation.Infinite; running: true
         }
     }
 
@@ -105,7 +124,7 @@ Item {
             }
         }
         RotationAnimator on rotation {
-            from: 360; to: 0; duration: 22000; loops: Animation.Infinite; running: true
+            from: 360; to: 0; duration: 26000; loops: Animation.Infinite; running: true
         }
     }
 

@@ -16,4 +16,9 @@ QtObject {
     function mem(mb) {
         return mb >= 1024 ? (mb / 1024).toFixed(1) + " Go" : Math.round(mb) + " Mo"
     }
+    function rate(bps) {
+        if (bps >= 1048576) return (bps / 1048576).toFixed(1) + " Mo/s"
+        if (bps >= 1024) return Math.round(bps / 1024) + " Ko/s"
+        return Math.round(bps) + " o/s"
+    }
 }
