@@ -35,6 +35,19 @@ void ConfigManager::load()
     m_prayerCity     = s.value(QStringLiteral("Prayer/prayer_city"), QStringLiteral("Brussels")).toString();
     m_prayerCountry  = s.value(QStringLiteral("Prayer/prayer_country"), QStringLiteral("Belgium")).toString();
     m_prayerMethod   = s.value(QStringLiteral("Prayer/prayer_method"), 2).toInt();
+
+    m_effect3dEnabled = s.value(QStringLiteral("Display/effect_3d"), true).toBool();
+}
+
+void ConfigManager::setEffect3dEnabled(bool on)
+{
+    if (on == m_effect3dEnabled)
+        return;
+    m_effect3dEnabled = on;
+    QSettings s(m_path, QSettings::IniFormat);
+    s.setValue(QStringLiteral("Display/effect_3d"), on);
+    s.sync();
+    emit effect3dEnabledChanged();
 }
 
 void ConfigManager::writeDefault()
@@ -51,6 +64,9 @@ void ConfigManager::writeDefault()
         << "; y = 40\n\n"
         << "[Performance]\n"
         << "refresh_interval_ms = 2000\n\n"
+        << "[Display]\n"
+        << "; Noyau « Flux de charge » en nuage de points 3D (false = repli 2D leger)\n"
+        << "effect_3d = true\n\n"
         << "[Prayer]\n"
         << "prayer_enabled = true\n"
         << "prayer_use_api = true\n"

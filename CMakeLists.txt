@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Qt 6.8+ requis (machine : 6.11.1 MinGW). Modules de la couche UI.
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick QuickControls2 Gui Network Widgets)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Quick QuickControls2 Gui Network Widgets Quick3D)
 
 # Active AUTOMOC/AUTORCC + helpers QML modernes.
 qt_standard_project_setup(REQUIRES 6.8)
@@ -54,6 +54,9 @@ qt_add_executable(appPerformanceOverlay
     src/core/services/startup_service.cpp
     src/core/services/task_killer_model.h
     src/core/services/task_killer_model.cpp
+    # presentation/visual3d — géométrie du nuage de points (noyau Flux de charge)
+    src/presentation/visual3d/sphere_point_geometry.h
+    src/presentation/visual3d/sphere_point_geometry.cpp
 )
 
 # App GUI Windows : aucune fenêtre console ne s'ouvre au lancement.
@@ -68,6 +71,7 @@ target_include_directories(appPerformanceOverlay PRIVATE
     src/core/platform/windows
     src/core/config
     src/core/services
+    src/presentation/visual3d
 )
 
 # Theme.qml est un singleton : doit être marqué AVANT qt_add_qml_module.
@@ -97,6 +101,8 @@ qt_add_qml_module(appPerformanceOverlay
         src/ui/qml/components/StatBox.qml
         src/ui/qml/components/SegmentBar.qml
         src/ui/qml/components/CenterVisual.qml
+        src/ui/qml/components/CenterVisual2D.qml
+        src/ui/qml/components/Sphere3D.qml
         src/ui/qml/components/Sparkline.qml
         src/ui/qml/components/NavBar.qml
         src/ui/qml/screens/CockpitScreen.qml
@@ -116,10 +122,21 @@ qt_add_resources(appPerformanceOverlay "appfonts"
         assets/fonts/JetBrainsMono-ExtraBold.ttf
 )
 
+# Shaders du nuage de points (snippets CustomMaterial Qt Quick 3D), accessibles
+# via qrc:/shaders/... depuis Sphere3D.qml.
+qt_add_resources(appPerformanceOverlay "sphereshaders"
+    PREFIX "/shaders"
+    BASE "src/ui/qml/shaders"
+    FILES
+        src/ui/qml/shaders/sphere.vert
+        src/ui/qml/shaders/sphere.frag
+)
+
 target_link_libraries(appPerformanceOverlay PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Gui
+    Qt6::Quick3D          # noyau Flux de charge : nuage de points 3D
     Qt6::Network          # IP locale + API horaires de prière
     Qt6::Widgets          # QSystemTrayIcon (zone de notification)
 )

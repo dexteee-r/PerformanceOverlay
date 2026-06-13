@@ -97,6 +97,17 @@ Item {
                 }
                 Text { text: "Raccourci global : Ctrl+Alt+O"; color: Theme.muted
                        font.family: Theme.fontMono; font.pixelSize: 11 }
+
+                Rectangle { Layout.fillWidth: true; Layout.topMargin: 4; implicitHeight: 1; color: Theme.border }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: "Effet 3D (noyau Flux de charge)"; color: Theme.text
+                           font.family: Theme.fontUi; font.pixelSize: 14; Layout.fillWidth: true }
+                    Toggle { on: Config.effect3dEnabled; onClicked: Config.effect3dEnabled = !Config.effect3dEnabled }
+                }
+                Text { text: "Sphère de points GPU · pause auto en jeu / mode passif"; color: Theme.muted
+                       font.family: Theme.fontMono; font.pixelSize: 11 }
                 Item { Layout.fillHeight: true }
             }
         }

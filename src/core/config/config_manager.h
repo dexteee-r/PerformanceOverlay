@@ -22,6 +22,7 @@ class ConfigManager : public QObject
     Q_PROPERTY(QString prayerCity READ prayerCity NOTIFY loaded)
     Q_PROPERTY(QString prayerCountry READ prayerCountry NOTIFY loaded)
     Q_PROPERTY(int prayerMethod READ prayerMethod NOTIFY loaded)
+    Q_PROPERTY(bool effect3dEnabled READ effect3dEnabled WRITE setEffect3dEnabled NOTIFY effect3dEnabledChanged)
     Q_PROPERTY(QString configPath READ configPath CONSTANT)
 
 public:
@@ -36,12 +37,15 @@ public:
     QString prayerCity() const { return m_prayerCity; }
     QString prayerCountry() const { return m_prayerCountry; }
     int prayerMethod() const { return m_prayerMethod; }
+    bool effect3dEnabled() const { return m_effect3dEnabled; }
+    void setEffect3dEnabled(bool on);
     QString configPath() const { return m_path; }
 
     Q_INVOKABLE void reload();
 
 signals:
     void loaded();
+    void effect3dEnabledChanged();
 
 private:
     void load();
@@ -57,4 +61,5 @@ private:
     QString m_prayerCity = QStringLiteral("Brussels");
     QString m_prayerCountry = QStringLiteral("Belgium");
     int m_prayerMethod = 2;
+    bool m_effect3dEnabled = true;
 };
