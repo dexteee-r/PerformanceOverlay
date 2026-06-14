@@ -5,8 +5,9 @@ import PerformanceOverlay
 // la maquette) et le repli 2D léger, selon Config.effect3dEnabled. La lecture
 // centrale (charge %) est posée par-dessus dans les deux cas.
 //
-// Réactivités de la sphère dérivées des métriques (cf. spéc maquette) :
-//   bass = GPU%, mid = CPU%, high = temp GPU (42→87°C) *0.7 + débit ↓ (→5 Mo/s) *0.3.
+// Réactivité de la sphère pilotée par le MICRO (ta voix) :
+//   bass + high = niveau micro (micLevel) → amplitude des vagues + pics.
+//   mid = CPU% → vitesse de rotation/bruit de fond (la sphère vit même en silence).
 Item {
     id: cv
 
@@ -16,10 +17,19 @@ Item {
     property real shown: load
     Behavior on shown { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
 
-    readonly property real rBass: Metrics.gpu.available ? Metrics.gpu.usagePercent / 100 : 0
+    // Micro : noise gate (ignore le souffle) + courbe perceptuelle √ (booste les
+    // sons faibles → réagit à voix normale sans coller le micro) × gain réglable.
+    // Gate bas (0.006) : capte la voix à distance normale ; remonter si ça « jitter »
+    // au repos (souffle de la pièce).
+    readonly property real micRaw: Math.max(0, Metrics.volume.micLevel - 0.006)
+    // Plafond > 1 (1.5) = MARGE pour parler fort / crier : la parole normale tourne
+    // vers 0.5–0.8, crier pousse jusqu'à 1.5 → vagues nettement plus longues (le
+    // shader sphere.vert amplifie au-delà de 1). Baisser le gain (Config.micSensitivity)
+    // élargit l'écart parole↔cri ; le monter sature plus vite.
+    readonly property real audioLevel: Math.min(1.5, Math.sqrt(micRaw) * Config.micSensitivity)
+    readonly property real rBass: audioLevel
     readonly property real rMid: Metrics.cpu.usagePercent / 100
-    readonly property real rHigh: Math.min(1, Math.max(0, (Metrics.gpu.temperatureC - 42) / 45)) * 0.7
-                                  + Math.min(1, Metrics.network.downBytesPerSec / 5.0e6) * 0.3
+    readonly property real rHigh: audioLevel
 
     // ---- Rendu 3D (chargé seulement si l'effet est activé) ----
     Loader {

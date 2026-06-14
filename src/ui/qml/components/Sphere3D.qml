@@ -22,13 +22,18 @@ Item {
     property real mid: 0.0
     property real high: 0.0
 
-    // Réglages.
-    property int pointCount: 4200
-    property real pointSize: 0.02
+    // Réglages : densité pilotée par la config (persistante, réglable en Réglages).
+    // La taille des points suit ~1.3/sqrt(count) → la sphère reste aussi « pleine »
+    // quelle que soit la densité (plus de points = points plus fins).
+    property int pointCount: Config.sphereDensity
+    property real pointSize: 1.3 / Math.sqrt(Math.max(1, pointCount))
 
+    // Pause auto quand l'overlay n'a pas le focus → 0 coût GPU au repos. L'option
+    // « Animer en arrière-plan » (Config) relâche UNIQUEMENT cette exigence de focus
+    // (le mode passif click-through continue, lui, de mettre en pause).
     readonly property bool active3d: Config.effect3dEnabled
                                      && root.visible
-                                     && Window.active
+                                     && (Window.active || Config.animateInBackground)
                                      && !Overlay.clickThrough
 
     // Valeurs lissées + animées (mises à jour à 30 Hz par le ticker).
@@ -94,9 +99,9 @@ Item {
             sphereMat.uTime += 0.033
 
             // Lissage (lerp) comme dans la maquette.
-            root.fB += (root.bass - root.fB) * 0.12
+            root.fB += (root.bass - root.fB) * 0.18
             root.fM += (root.mid  - root.fM) * 0.10
-            root.fH += (root.high - root.fH) * 0.18
+            root.fH += (root.high - root.fH) * 0.25
             sphereMat.uBass = root.fB
             sphereMat.uMid  = root.fM
             sphereMat.uHigh = root.fH

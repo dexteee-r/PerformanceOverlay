@@ -66,10 +66,13 @@ void MAIN()
 
     float speed = uTime * (0.18 + uMid * 0.5);
     float n = snoise(center * 1.5 + vec3(speed));
-    float spikes = snoise(center * 5.0 + vec3(uTime)) * uHigh * 0.10;
+    float spikes = snoise(center * 5.0 + vec3(uTime)) * uHigh * 0.14;
 
     // Déplacement le long de la normale : pos + normal*d == center*(1+d) (|center|=1).
-    float disp = n * (0.05 + uBass * 0.16) + spikes;
+    // uBass/uHigh peuvent dépasser 1 (jusqu'à ~1.5 quand on crie) → vagues qui
+    // s'allongent au lieu de plafonner. 0.24 = longueur max des vagues (monter pour
+    // des ondulations plus amples).
+    float disp = n * (0.05 + uBass * 0.24) + spikes;
     vec3 displaced = center * (1.0 + disp);
 
     // Centre en espace vue, puis offset du coin du quad (billboard).
