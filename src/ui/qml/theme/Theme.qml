@@ -50,9 +50,10 @@ QtObject {
     readonly property real gap:      16   // unité de base ; multiplier, ne pas inventer
     readonly property real pad:      16
 
-    // --- Typographie (mono pour la « logique data ») ---
-    readonly property string fontUi:   "JetBrains Mono"
-    readonly property string fontMono: "JetBrains Mono"
+    // --- Typographie : tout en Satoshi. Les chiffres restent alignés grâce à la
+    // feature tnum activée globalement (main.cpp) → pas de sautillement.
+    readonly property string fontUi:   "Satoshi"
+    readonly property string fontMono: "Satoshi"
 
     // Mappe une charge 0..1 vers une couleur sémantique.
     function statusColor(t) {

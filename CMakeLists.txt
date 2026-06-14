@@ -121,6 +121,10 @@ qt_add_resources(appPerformanceOverlay "appfonts"
         assets/fonts/JetBrainsMono-Medium.ttf
         assets/fonts/JetBrainsMono-Bold.ttf
         assets/fonts/JetBrainsMono-ExtraBold.ttf
+        assets/fonts/Satoshi-Regular.ttf
+        assets/fonts/Satoshi-Medium.ttf
+        assets/fonts/Satoshi-Bold.ttf
+        assets/fonts/Satoshi-Black.ttf
 )
 
 # Shaders du nuage de points (snippets CustomMaterial Qt Quick 3D), accessibles

@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QFontDatabase>
+#include <QFont>
 #include <QStringList>
 #include <QQuickWindow>
 
@@ -34,10 +35,22 @@ int main(int argc, char *argv[])
     app.setOrganizationName("Mazani");
     app.setQuitOnLastWindowClosed(false);   // l'overlay survit masqué dans le tray
 
-    // Police JetBrains Mono embarquée (cf. CMake qt_add_resources /fonts).
-    const QStringList fontWeights{"Regular", "Medium", "Bold", "ExtraBold"};
-    for (const QString &w : fontWeights)
+    // Polices embarquées (cf. CMake qt_add_resources /fonts) : Satoshi (UI) +
+    // JetBrains Mono (chiffres live, alignement tabulaire).
+    const QStringList jbWeights{"Regular", "Medium", "Bold", "ExtraBold"};
+    for (const QString &w : jbWeights)
         QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/JetBrainsMono-%1.ttf").arg(w));
+    const QStringList satoshiWeights{"Regular", "Medium", "Bold", "Black"};
+    for (const QString &w : satoshiWeights)
+        QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Satoshi-%1.ttf").arg(w));
+
+    // Chiffres tabulaires partout (feature OpenType tnum) → les nombres qui changent
+    // (horloge, métriques) gardent une largeur fixe = aucun sautillement, même avec
+    // une police proportionnelle comme Satoshi. Hérité par les Text qui ne fixent que
+    // family/pixelSize.
+    QFont baseFont = app.font();
+    baseFont.setFeature(QFont::Tag("tnum"), 1);
+    app.setFont(baseFont);
 
     QQmlApplicationEngine engine;
     QObject::connect(
