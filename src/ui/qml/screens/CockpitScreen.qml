@@ -58,6 +58,13 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 10
+                    Text {
+                        Layout.fillWidth: true
+                        text: Metrics.cpu.name; visible: text !== ""
+                        color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 10
+                        font.letterSpacing: 1; elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                    }
                     Item {
                         Layout.fillWidth: true; Layout.fillHeight: true
                         CircularGauge {
@@ -96,6 +103,13 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 10
+                    Text {
+                        Layout.fillWidth: true
+                        text: Metrics.gpu.name; visible: Metrics.gpu.available && text !== ""
+                        color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 10
+                        font.letterSpacing: 1; elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                    }
                     Item {
                         Layout.fillWidth: true; Layout.fillHeight: true
 
@@ -154,21 +168,9 @@ Item {
                 title: "FLUX DE CHARGE"
                 statusColor: Theme.statusColor(Metrics.systemLoad)
                 tag: "CPU · GPU"
-                ColumnLayout {
+                CenterVisual {
                     anchors.fill: parent
-                    spacing: 8
-                    CenterVisual {
-                        Layout.fillWidth: true; Layout.fillHeight: true
-                        load: Metrics.systemLoad
-                    }
-                    Text { text: "FLUX SYSTÈME"; color: Theme.muted; font.family: Theme.fontUi
-                           font.pixelSize: 9; font.letterSpacing: 3 }
-                    Sparkline {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 48
-                        values: Metrics.systemLoadHistory
-                        lineColor: Theme.statusColor(Metrics.systemLoad)
-                    }
+                    load: Metrics.systemLoad
                 }
             }
 
@@ -249,6 +251,7 @@ Item {
             // ----- MÉMOIRE -----
             Panel {
                 Layout.fillWidth: true; Layout.fillHeight: true
+                Layout.preferredHeight: 170
                 title: "MÉMOIRE"
                 statusColor: Theme.statusColor(Metrics.ram.usagePercent / 100)
                 RowLayout {
@@ -305,60 +308,68 @@ Item {
             // ----- SYSTÈME -----
             Panel {
                 Layout.fillWidth: true; Layout.fillHeight: true
+                Layout.preferredHeight: 235   // contenu dense (audio + procs)
                 title: "SYSTÈME"
+                tag: Metrics.network.ipAddress
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 0
                     KV { Layout.fillWidth: true; k: "VOLUME"
                          v: Metrics.volume.muted ? "MUTE" : Metrics.volume.level.toFixed(0) + " %"
                          vc: Metrics.volume.muted ? Theme.crit : Theme.textHi }
+                    KV { Layout.fillWidth: true; k: "PROCESSUS"; v: "" + Metrics.process.count }
+                    KV { Layout.fillWidth: true; k: "THREADS"; v: "" + Metrics.process.threadCount }
                     KV { Layout.fillWidth: true; k: "CLAUDE / JOUR"
                          v: Metrics.claudeUsage.hasData ? Metrics.claudeUsage.dayPercent.toFixed(0) + " %" : "--" }
                     KV { Layout.fillWidth: true; k: "CLAUDE / SEM."
                          v: Metrics.claudeUsage.hasData ? Metrics.claudeUsage.weekPercent.toFixed(0) + " %" : "--" }
+                    // Audio : périphérique de sortie + VU-mètre live (ce qu'on entend)
+                    Text {
+                        Layout.fillWidth: true; Layout.topMargin: 8
+                        text: "SON · " + (Metrics.volume.deviceName !== "" ? Metrics.volume.deviceName : "—")
+                        color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 10
+                        font.letterSpacing: 1; elide: Text.ElideRight
+                    }
                     Item {
-                        Layout.fillWidth: true; Layout.topMargin: 8; implicitHeight: 6
+                        Layout.fillWidth: true; implicitHeight: 6
                         Rectangle { anchors.fill: parent; color: Qt.rgba(1, 1, 1, 0.06) }
                         Rectangle {
                             height: parent.height
-                            width: parent.width * Math.max(0, Math.min(1, Metrics.volume.level / 100))
-                            color: Theme.accent2
-                            Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+                            width: parent.width * Math.max(0, Math.min(1, Metrics.volume.peakLevel))
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: Theme.accent }
+                                GradientStop { position: 1.0; color: Theme.warn }
+                            }
+                            Behavior on width { NumberAnimation { duration: 60 } }
                         }
                     }
                     Item { Layout.fillHeight: true }
                 }
             }
 
-            // ----- PRIÈRE -----
+            // ----- PRIÈRE (petit carré compact) -----
             Panel {
-                Layout.fillWidth: true; Layout.fillHeight: true
+                Layout.preferredWidth: 150
+                Layout.preferredHeight: 150
+                Layout.alignment: Qt.AlignLeft
                 title: "PRIÈRE"
                 accent: Theme.accent2
                 statusColor: Theme.accent2
-                tag: Metrics.prayer.usingApi ? "API" : "DÉFAUT"
-                RowLayout {
-                    anchors.fill: parent
-                    ColumnLayout {
-                        Layout.fillWidth: true; Layout.fillHeight: true
-                        spacing: 2
-                        Text { text: "PROCHAINE"; color: Theme.muted; font.family: Theme.fontUi
-                               font.pixelSize: 10; font.letterSpacing: 3 }
-                        Text { text: Metrics.prayer.nextName; color: Theme.accent2; font.family: Theme.fontUi
-                               font.pixelSize: 30; font.weight: Font.Black }
-                        Text { text: Fmt.pad2(Metrics.prayer.nextHour) + ":" + Fmt.pad2(Metrics.prayer.nextMinute)
-                               color: Theme.text; font.family: Theme.fontMono; font.pixelSize: 14; font.features: ({ "tnum": 1 }) }
-                        Item { Layout.fillHeight: true }
-                    }
-                    ColumnLayout {
-                        Layout.alignment: Qt.AlignRight | Qt.AlignBottom
-                        spacing: 2
-                        Text { Layout.alignment: Qt.AlignRight; text: "DANS"; color: Theme.muted
-                               font.family: Theme.fontUi; font.pixelSize: 10; font.letterSpacing: 3 }
-                        Text { Layout.alignment: Qt.AlignRight; text: Fmt.countdown(Metrics.prayer.remainingMinutes)
-                               color: Theme.textHi; font.family: Theme.fontMono; font.pixelSize: 22; font.weight: Font.Bold
-                               font.features: ({ "tnum": 1 }) }
-                    }
+                tag: Metrics.prayer.usingApi ? "API" : ""
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 3
+                    Text { anchors.horizontalCenter: parent.horizontalCenter
+                           text: Metrics.prayer.nextName; color: Theme.accent2
+                           font.family: Theme.fontUi; font.pixelSize: 26; font.weight: Font.Black }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter
+                           text: Fmt.pad2(Metrics.prayer.nextHour) + ":" + Fmt.pad2(Metrics.prayer.nextMinute)
+                           color: Theme.muted; font.family: Theme.fontMono; font.pixelSize: 12; font.features: ({ "tnum": 1 }) }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter
+                           text: "dans " + Fmt.countdown(Metrics.prayer.remainingMinutes)
+                           color: Theme.textHi; font.family: Theme.fontMono; font.pixelSize: 14
+                           font.weight: Font.Bold; font.features: ({ "tnum": 1 }) }
                 }
             }
         }

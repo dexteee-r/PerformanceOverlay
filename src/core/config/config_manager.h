@@ -23,6 +23,11 @@ class ConfigManager : public QObject
     Q_PROPERTY(QString prayerCountry READ prayerCountry NOTIFY loaded)
     Q_PROPERTY(int prayerMethod READ prayerMethod NOTIFY loaded)
     Q_PROPERTY(bool effect3dEnabled READ effect3dEnabled WRITE setEffect3dEnabled NOTIFY effect3dEnabledChanged)
+    Q_PROPERTY(int sphereDensity READ sphereDensity WRITE setSphereDensity NOTIFY sphereDensityChanged)
+    Q_PROPERTY(bool animateInBackground READ animateInBackground WRITE setAnimateInBackground NOTIFY animateInBackgroundChanged)
+    Q_PROPERTY(double micSensitivity READ micSensitivity WRITE setMicSensitivity NOTIFY micSensitivityChanged)
+    Q_PROPERTY(QString micDeviceId READ micDeviceId WRITE setMicDeviceId NOTIFY micDeviceIdChanged)
+    Q_PROPERTY(QString themePreset READ themePreset WRITE setThemePreset NOTIFY themePresetChanged)
     Q_PROPERTY(QString configPath READ configPath CONSTANT)
 
 public:
@@ -39,6 +44,16 @@ public:
     int prayerMethod() const { return m_prayerMethod; }
     bool effect3dEnabled() const { return m_effect3dEnabled; }
     void setEffect3dEnabled(bool on);
+    int sphereDensity() const { return m_sphereDensity; }
+    void setSphereDensity(int n);
+    bool animateInBackground() const { return m_animateInBackground; }
+    void setAnimateInBackground(bool on);
+    double micSensitivity() const { return m_micSensitivity; }
+    void setMicSensitivity(double v);
+    QString micDeviceId() const { return m_micDeviceId; }
+    void setMicDeviceId(const QString &id);
+    QString themePreset() const { return m_themePreset; }
+    void setThemePreset(const QString &name);
     QString configPath() const { return m_path; }
 
     Q_INVOKABLE void reload();
@@ -46,6 +61,11 @@ public:
 signals:
     void loaded();
     void effect3dEnabledChanged();
+    void sphereDensityChanged();
+    void animateInBackgroundChanged();
+    void micSensitivityChanged();
+    void micDeviceIdChanged();
+    void themePresetChanged();
 
 private:
     void load();
@@ -62,4 +82,9 @@ private:
     QString m_prayerCountry = QStringLiteral("Belgium");
     int m_prayerMethod = 2;
     bool m_effect3dEnabled = true;
+    int m_sphereDensity = 4200;
+    bool m_animateInBackground = false;   // défaut : pause hors-focus (économe GPU)
+    double m_micSensitivity = 6.0;        // gain micro → amplitude des vagues (× courbe √)
+    QString m_micDeviceId;                // micro choisi (vide = défaut Windows)
+    QString m_themePreset = QStringLiteral("cyan");
 };

@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import PerformanceOverlay
 
 // Source unique de vérité du design system (palette « cockpit » de la maquette
 // FEAT - inspi full page). AUCUNE couleur / espacement / rayon codé en dur dans
@@ -25,9 +26,20 @@ QtObject {
     readonly property color textLow: "#4A5266"               // unités/légendes (compat)
     readonly property color faint:   "#4A5266"
 
-    // --- Accents (identité projet) + états sémantiques ---
-    readonly property color accent:  "#00E6FF"               // cyan primaire
-    readonly property color accent2: "#FF40B4"               // magenta secondaire
+    // --- Accents : pilotés par le preset de thème (Config.themePreset, persistant).
+    // Le couple accent/accent2 retinte TOUT (jauges, sphère, sparklines, navbar…).
+    readonly property var presets: ({
+        "cyan":   { accent: "#00E6FF", accent2: "#FF40B4", label: "CYAN / MAGENTA" },
+        "lime":   { accent: "#46E08B", accent2: "#B4FF3D", label: "VERT / LIME" },
+        "amber":  { accent: "#FFB454", accent2: "#FF5C6C", label: "AMBRE / ROUGE" },
+        "violet": { accent: "#9B7BFF", accent2: "#FF5CC8", label: "VIOLET / ROSE" },
+        "ice":    { accent: "#5AC8FF", accent2: "#86F4FF", label: "BLEU / GLACE" }
+    })
+    readonly property var presetKeys: ["cyan", "lime", "amber", "violet", "ice"]
+    readonly property var _preset: presets[Config.themePreset] || presets["cyan"]
+
+    readonly property color accent:  _preset.accent          // accent primaire (preset)
+    readonly property color accent2: _preset.accent2         // accent secondaire (preset)
     readonly property color ok:      "#3DDC84"
     readonly property color warn:    "#FFA62E"
     readonly property color crit:    "#FF3B3B"

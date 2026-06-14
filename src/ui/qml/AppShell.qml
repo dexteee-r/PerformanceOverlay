@@ -122,6 +122,22 @@ Item {
         }
     }
 
+    // ================= VOILE D'ALERTE (au-dessus de tout) =================
+    // Seuils critiques : GPU très chaud, ou CPU/RAM quasi saturés.
+    readonly property bool _gpuHot: Metrics.gpu.available && Metrics.gpu.temperatureC >= 88
+    readonly property bool _cpuMax: Metrics.cpu.usagePercent >= 96
+    readonly property bool _ramMax: Metrics.ram.usagePercent >= 95
+    readonly property string _alertLabel:
+        _gpuHot ? "ALERTE THERMIQUE GPU · " + Metrics.gpu.temperatureC.toFixed(0) + "°C"
+        : _cpuMax ? "CHARGE CPU CRITIQUE · " + Metrics.cpu.usagePercent.toFixed(0) + "%"
+        : _ramMax ? "MÉMOIRE SATURÉE · " + Metrics.ram.usagePercent.toFixed(0) + "%" : ""
+
+    AlertVeil {
+        anchors.fill: parent
+        active: shell._gpuHot || shell._cpuMax || shell._ramMax
+        label: shell._alertLabel
+    }
+
     Component { id: cockpitC;  CockpitScreen {} }
     Component { id: tasksC;    TasksScreen {} }
     Component { id: settingsC; SettingsScreen {} }
