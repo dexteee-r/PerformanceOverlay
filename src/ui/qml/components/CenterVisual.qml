@@ -19,9 +19,9 @@ Item {
 
     // Micro : noise gate (ignore le souffle) + courbe perceptuelle √ (booste les
     // sons faibles → réagit à voix normale sans coller le micro) × gain réglable.
-    // Gate bas (0.006) : capte la voix à distance normale ; remonter si ça « jitter »
-    // au repos (souffle de la pièce).
-    readonly property real micRaw: Math.max(0, Metrics.volume.micLevel - 0.006)
+    // Gate (0.01) : ignore le souffle/bruit de fond ; baisser pour capter plus loin,
+    // monter si ça « jitter » au repos.
+    readonly property real micRaw: Math.max(0, Metrics.volume.micLevel - 0.01)
     // Plafond > 1 (1.5) = MARGE pour parler fort / crier : la parole normale tourne
     // vers 0.5–0.8, crier pousse jusqu'à 1.5 → vagues nettement plus longues (le
     // shader sphere.vert amplifie au-delà de 1). Baisser le gain (Config.micSensitivity)
