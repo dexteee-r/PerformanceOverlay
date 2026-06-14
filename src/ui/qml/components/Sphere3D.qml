@@ -25,7 +25,12 @@ Item {
     // Réglages : densité pilotée par la config (persistante, réglable en Réglages).
     // La taille des points suit ~1.3/sqrt(count) → la sphère reste aussi « pleine »
     // quelle que soit la densité (plus de points = points plus fins).
-    property int pointCount: Config.sphereDensity
+    // Plein écran : la sphère est étalée sur beaucoup de pixels → on densifie (×3,
+    // plafonné à 32000) pour garder une vraie résolution. En cockpit (petit) on garde
+    // la densité configurée (léger). La géométrie se reconstruit au changement de vue.
+    property int pointCount: Nav.view === "fullpage"
+                             ? Math.min(32000, Config.sphereDensity * 3)
+                             : Config.sphereDensity
     property real pointSize: 1.3 / Math.sqrt(Math.max(1, pointCount))
 
     // Pause auto quand l'overlay n'a pas le focus → 0 coût GPU au repos. L'option
@@ -49,7 +54,13 @@ Item {
         camera: cam
         environment: SceneEnvironment {
             backgroundMode: SceneEnvironment.Transparent
-            antialiasingMode: SceneEnvironment.NoAA   // points déjà ronds + bords doux
+            // En plein écran la sphère est étalée sur beaucoup de pixels → l'aliasing
+            // des points (quads à masque rond en alpha) devient visible (« effet 480p »).
+            // On supersample (SSAA) UNIQUEMENT en plein écran ; en cockpit (petit) le
+            // NoAA suffit et évite de payer le GPU pour rien.
+            antialiasingMode: Nav.view === "fullpage" ? SceneEnvironment.SSAA
+                                                       : SceneEnvironment.NoAA
+            antialiasingQuality: SceneEnvironment.VeryHigh   // SSAA 2× quand actif
         }
 
         PerspectiveCamera {

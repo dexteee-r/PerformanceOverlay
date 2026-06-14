@@ -13,7 +13,7 @@ SpherePointGeometry::SpherePointGeometry(QQuick3DObject *parent)
 void SpherePointGeometry::setCount(int c)
 {
     if (c < 500)        c = 500;
-    else if (c > 16000) c = 16000;
+    else if (c > 32000) c = 32000;
     if (c == m_count)
         return;
     m_count = c;
