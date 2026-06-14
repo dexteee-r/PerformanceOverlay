@@ -104,7 +104,6 @@ qt_add_qml_module(appPerformanceOverlay
         src/ui/qml/components/CenterVisual2D.qml
         src/ui/qml/components/Sphere3D.qml
         src/ui/qml/components/Sparkline.qml
-        src/ui/qml/components/LineChart.qml
         src/ui/qml/components/AlertVeil.qml
         src/ui/qml/components/NavBar.qml
         src/ui/qml/screens/CockpitScreen.qml

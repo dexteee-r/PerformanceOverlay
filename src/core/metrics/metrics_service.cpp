@@ -44,8 +44,5 @@ void MetricsService::pollAll()
     m_systemLoad = (m_cpu->usagePercent() * 0.6 + gpu * 0.4) / 100.0;
     m_loadHistory.push(m_systemLoad * 100.0);   // historique en 0..100 (comme cpu/gpu)
 
-    // Historique long de la charge (240 pts ≈ 8 min) pour le LineChart du cockpit.
-    m_loadHistoryLong.push(m_systemLoad * 100.0);
-
     emit systemLoadChanged();
 }

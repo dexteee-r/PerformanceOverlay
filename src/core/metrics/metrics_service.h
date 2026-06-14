@@ -47,9 +47,6 @@ class MetricsService : public QObject
     Q_PROPERTY(QString hostName READ hostName CONSTANT)   // nom de la machine (statique)
     Q_PROPERTY(double systemLoad READ systemLoad NOTIFY systemLoadChanged)               // 0..1
     Q_PROPERTY(QVariantList systemLoadHistory READ systemLoadHistory NOTIFY systemLoadChanged)
-    // Historique long de la charge (240 pts ≈ 8 min) pour le LineChart « gros
-    // historique » du panneau FLUX DE CHARGE.
-    Q_PROPERTY(QVariantList loadHistoryLong READ loadHistoryLong NOTIFY systemLoadChanged)
     Q_PROPERTY(int intervalMs READ intervalMs WRITE setIntervalMs NOTIFY intervalMsChanged)
 
 public:
@@ -71,7 +68,6 @@ public:
 
     double systemLoad() const { return m_systemLoad; }
     QVariantList systemLoadHistory() const { return m_loadHistory.toVariantList(); }
-    QVariantList loadHistoryLong() const { return m_loadHistoryLong.toVariantList(); }
 
     int intervalMs() const { return m_intervalMs; }
     void setIntervalMs(int ms);
@@ -101,5 +97,4 @@ private:
 
     double m_systemLoad = 0.0;
     History m_loadHistory;
-    History m_loadHistoryLong{240};
 };
