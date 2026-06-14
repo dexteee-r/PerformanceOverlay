@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtQml/qqmlregistration.h>
+#include <QString>
 #include <QVariantList>
 #include "metric_provider.h"
 #include "history.h"
@@ -14,6 +15,7 @@ class CpuProvider : public MetricProvider
     QML_ELEMENT
     QML_UNCREATABLE("Fourni par le singleton Metrics")
 
+    Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(double usagePercent READ usagePercent NOTIFY usagePercentChanged)
     Q_PROPERTY(double frequencyGhz READ frequencyGhz NOTIFY frequencyGhzChanged)
     Q_PROPERTY(QVariantList usageHistory READ usageHistory NOTIFY usageHistoryChanged)
@@ -21,6 +23,7 @@ class CpuProvider : public MetricProvider
 public:
     explicit CpuProvider(QObject *parent = nullptr);
 
+    QString name() const { return m_name; }
     double usagePercent() const { return m_usagePercent; }
     double frequencyGhz() const { return m_frequencyGhz; }
     QVariantList usageHistory() const { return m_history.toVariantList(); }
@@ -41,6 +44,7 @@ private:
     quint64 m_lastKernel = 0;
     quint64 m_lastUser = 0;
 
+    QString m_name;
     double m_usagePercent = 0.0;
     double m_frequencyGhz = 0.0;
     History m_history;

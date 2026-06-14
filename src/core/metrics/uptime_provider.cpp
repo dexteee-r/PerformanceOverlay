@@ -1,5 +1,7 @@
 #include "uptime_provider.h"
 
+#include <QTimer>
+
 #ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
 #endif
@@ -7,6 +9,17 @@
 #  define NOMINMAX
 #endif
 #include <windows.h>
+
+UptimeProvider::UptimeProvider(QObject *parent) : MetricProvider(parent)
+{
+    poll();
+    // Tic à la seconde, indépendant de l'intervalle de polling (2 s) → l'uptime
+    // affiche des secondes qui avancent en continu au lieu de sauter.
+    auto *clock = new QTimer(this);
+    clock->setInterval(1000);
+    connect(clock, &QTimer::timeout, this, &UptimeProvider::poll);
+    clock->start();
+}
 
 void UptimeProvider::poll()
 {

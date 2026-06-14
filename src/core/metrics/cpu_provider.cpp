@@ -1,5 +1,7 @@
 #include "cpu_provider.h"
 
+#include <QString>
+
 #ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
 #endif
@@ -37,10 +39,36 @@ double readFrequencyGhz()
     return mhz / 1000.0;
 }
 
+// Nom commercial du CPU (registre, ProcessorNameString). Statique : lu une fois.
+// Léger nettoyage : on retire les (R)/(TM) et on normalise les espaces.
+QString readCpuName()
+{
+    HKEY hKey;
+    char buf[256] = {0};
+    DWORD size = sizeof(buf);
+    QString name;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                      "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                      0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(hKey, "ProcessorNameString", nullptr, nullptr,
+                             reinterpret_cast<LPBYTE>(buf), &size) == ERROR_SUCCESS)
+            name = QString::fromLocal8Bit(buf);
+        RegCloseKey(hKey);
+    }
+    name = name.simplified();
+    name.remove(QStringLiteral("(R)"));
+    name.remove(QStringLiteral("(TM)"));
+    name.remove(QStringLiteral("(r)"));
+    name.remove(QStringLiteral("(tm)"));
+    return name.simplified();
+}
+
 } // namespace
 
 CpuProvider::CpuProvider(QObject *parent) : MetricProvider(parent)
 {
+    m_name = readCpuName();
+
     // Amorce la baseline : le premier poll() mesurera l'intervalle écoulé.
     FILETIME idle, kernel, user;
     if (GetSystemTimes(&idle, &kernel, &user)) {

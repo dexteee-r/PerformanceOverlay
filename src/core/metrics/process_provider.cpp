@@ -11,14 +11,21 @@
 
 void ProcessProvider::poll()
 {
-    DWORD pids[1024];
-    DWORD bytesReturned = 0;
-    int c = 0;
-    if (EnumProcesses(pids, sizeof(pids), &bytesReturned))
-        c = static_cast<int>(bytesReturned / sizeof(DWORD));
+    // GetPerformanceInfo : compteurs système (processus ET threads) en un appel.
+    PERFORMANCE_INFORMATION pi;
+    pi.cb = sizeof(pi);
+    if (!GetPerformanceInfo(&pi, sizeof(pi)))
+        return;
 
-    if (c != m_count) {
-        m_count = c;
+    const int procs = static_cast<int>(pi.ProcessCount);
+    const int threads = static_cast<int>(pi.ThreadCount);
+
+    if (procs != m_count) {
+        m_count = procs;
         emit countChanged();
+    }
+    if (threads != m_threadCount) {
+        m_threadCount = threads;
+        emit threadCountChanged();
     }
 }

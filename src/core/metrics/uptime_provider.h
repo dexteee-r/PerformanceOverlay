@@ -14,7 +14,7 @@ class UptimeProvider : public MetricProvider
     Q_PROPERTY(qint64 seconds READ seconds NOTIFY secondsChanged)
 
 public:
-    explicit UptimeProvider(QObject *parent = nullptr) : MetricProvider(parent) {}
+    explicit UptimeProvider(QObject *parent = nullptr);
 
     qint64 seconds() const { return m_seconds; }
 
