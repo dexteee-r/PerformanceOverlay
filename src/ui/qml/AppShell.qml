@@ -62,13 +62,9 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 14
                 Rectangle { width: 10; height: 10; radius: 5; color: Theme.ok; anchors.verticalCenter: parent.verticalCenter }
-                Column {
-                    spacing: 3
-                    Text { text: "PERFORMANCE OVERLAY"; color: Theme.textHi; font.family: Theme.fontUi
-                           font.pixelSize: 18; font.weight: Font.Bold; font.letterSpacing: 4 }
-                    Text { text: Nav.view.toUpperCase() + " · QT 6 / QML"; color: Theme.muted
-                           font.family: Theme.fontUi; font.pixelSize: 10; font.letterSpacing: 5 }
-                }
+                Text { text: (Metrics.hostName + " perf").toUpperCase(); color: Theme.textHi
+                       font.family: Theme.fontUi; font.pixelSize: 16; font.weight: Font.Bold
+                       font.letterSpacing: 3; anchors.verticalCenter: parent.verticalCenter }
             }
 
             NavBar {

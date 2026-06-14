@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QList>
 #include <QVariantList>
+#include <QString>
+#include <QSysInfo>
 #include <QtQml/qqmlregistration.h>
 #include "history.h"
 #include "cpu_provider.h"
@@ -42,6 +44,7 @@ class MetricsService : public QObject
     Q_PROPERTY(VolumeProvider *volume READ volume CONSTANT)
     Q_PROPERTY(PrayerProvider *prayer READ prayer CONSTANT)
     Q_PROPERTY(ClaudeUsageProvider *claudeUsage READ claudeUsage CONSTANT)
+    Q_PROPERTY(QString hostName READ hostName CONSTANT)   // nom de la machine (statique)
     Q_PROPERTY(double systemLoad READ systemLoad NOTIFY systemLoadChanged)               // 0..1
     Q_PROPERTY(QVariantList systemLoadHistory READ systemLoadHistory NOTIFY systemLoadChanged)
     // Historique long de la charge (240 pts ≈ 8 min) pour le LineChart « gros
@@ -63,6 +66,8 @@ public:
     VolumeProvider *volume() const { return m_volume; }
     PrayerProvider *prayer() const { return m_prayer; }
     ClaudeUsageProvider *claudeUsage() const { return m_claudeUsage; }
+
+    QString hostName() const { return QSysInfo::machineHostName(); }
 
     double systemLoad() const { return m_systemLoad; }
     QVariantList systemLoadHistory() const { return m_loadHistory.toVariantList(); }
