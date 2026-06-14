@@ -153,32 +153,66 @@ Item {
             }
         }
 
-        // ---- PRIÈRE ----
+        // ---- PRIÈRE (mosquée mawaqit) ----
         Panel {
-            Layout.fillWidth: true; Layout.preferredHeight: 180
+            id: priPanel
+            Layout.columnSpan: 2
+            Layout.fillWidth: true; Layout.preferredHeight: 210
             title: "PRIÈRE"
             accent: Theme.accent2
             statusColor: Theme.accent2
+            tag: Metrics.prayer.mosqueName !== "" ? "MAWAQIT" : "ALADHAN"
+
+            // Accepte un slug brut OU une URL mawaqit.net collée → renvoie le slug.
+            function slugFromInput(s) {
+                s = (s || "").trim()
+                var m = s.match(/mawaqit\.net\/[a-z]{2}\/([^/?#\s]+)/i)
+                return m ? m[1] : s
+            }
+            function apply() {
+                var slug = priPanel.slugFromInput(mosqueField.text)
+                Config.prayerMosqueId = slug
+                Metrics.prayer.setMosque(slug)
+                mosqueField.text = slug
+            }
+
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 8
-                RowLayout {
+                Text { text: "Horaires exacts d'une mosquée via mawaqit.net"; color: Theme.text
+                       font.family: Theme.fontUi; font.pixelSize: 14; Layout.fillWidth: true }
+                Text {
                     Layout.fillWidth: true
-                    Text { text: "Ville"; color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 13; Layout.fillWidth: true }
-                    Text { text: Config.prayerCity; color: Theme.textHi; font.family: Theme.fontMono; font.pixelSize: 13 }
+                    text: Metrics.prayer.mosqueName !== ""
+                          ? "Suivie : " + Metrics.prayer.mosqueName
+                          : "Aucune mosquée — calcul par ville (" + Config.prayerCity + ")"
+                    color: Metrics.prayer.mosqueName !== "" ? Theme.accent2 : Theme.muted
+                    font.family: Theme.fontMono; font.pixelSize: 12; elide: Text.ElideRight
                 }
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Pays"; color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 13; Layout.fillWidth: true }
-                    Text { text: Config.prayerCountry; color: Theme.textHi; font.family: Theme.fontMono; font.pixelSize: 13 }
+                    spacing: 8
+                    TextField {
+                        id: mosqueField
+                        Layout.fillWidth: true
+                        text: Config.prayerMosqueId
+                        placeholderText: "URL mawaqit.net de ta mosquée (ou son identifiant)"
+                        color: Theme.textHi; placeholderTextColor: Theme.muted
+                        font.family: Theme.fontMono; font.pixelSize: 12
+                        background: Rectangle { color: Qt.rgba(1, 1, 1, 0.05); border.width: 1; border.color: Theme.border }
+                        onAccepted: priPanel.apply()
+                    }
+                    Rectangle {
+                        Layout.preferredWidth: ab.implicitWidth + 22; Layout.preferredHeight: 32
+                        color: "transparent"; border.width: 1; border.color: Theme.accent2
+                        Text { id: ab; anchors.centerIn: parent; text: "APPLIQUER"; color: Theme.accent2
+                               font.family: Theme.fontUi; font.pixelSize: 11; font.letterSpacing: 1 }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: priPanel.apply() }
+                    }
                 }
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { text: "Méthode"; color: Theme.muted; font.family: Theme.fontUi; font.pixelSize: 13; Layout.fillWidth: true }
-                    Text { text: "" + Config.prayerMethod; color: Theme.textHi; font.family: Theme.fontMono; font.pixelSize: 13 }
-                }
-                Text { text: "Modifier dans config.ini puis recharger"; color: Theme.muted
-                       font.family: Theme.fontMono; font.pixelSize: 11 }
+                Text { text: "Cherche ta mosquée sur mawaqit.net et colle l'adresse de sa page. Vide = calcul Aladhan (ville " + Config.prayerCity + ")."
+                       color: Theme.muted; font.family: Theme.fontMono; font.pixelSize: 11
+                       wrapMode: Text.WordWrap; Layout.fillWidth: true }
                 Item { Layout.fillHeight: true }
             }
         }

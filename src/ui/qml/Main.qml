@@ -20,7 +20,8 @@ Window {
     function applyConfig() {
         Metrics.intervalMs = Config.refreshIntervalMs
         Metrics.prayer.configure(Config.prayerCity, Config.prayerCountry,
-                                 Config.prayerMethod, Config.prayerEnabled, Config.prayerUseApi)
+                                 Config.prayerMethod, Config.prayerEnabled, Config.prayerUseApi,
+                                 Config.prayerMosqueId)
         Metrics.volume.useMicDevice(Config.micDeviceId)   // micro qui anime la sphère
         if (Config.hasWindowPos) { win.x = Config.windowX; win.y = Config.windowY }
     }

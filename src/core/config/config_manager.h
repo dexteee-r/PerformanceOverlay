@@ -28,6 +28,7 @@ class ConfigManager : public QObject
     Q_PROPERTY(double micSensitivity READ micSensitivity WRITE setMicSensitivity NOTIFY micSensitivityChanged)
     Q_PROPERTY(QString micDeviceId READ micDeviceId WRITE setMicDeviceId NOTIFY micDeviceIdChanged)
     Q_PROPERTY(QString themePreset READ themePreset WRITE setThemePreset NOTIFY themePresetChanged)
+    Q_PROPERTY(QString prayerMosqueId READ prayerMosqueId WRITE setPrayerMosqueId NOTIFY prayerMosqueIdChanged)
     Q_PROPERTY(QString configPath READ configPath CONSTANT)
 
 public:
@@ -54,6 +55,8 @@ public:
     void setMicDeviceId(const QString &id);
     QString themePreset() const { return m_themePreset; }
     void setThemePreset(const QString &name);
+    QString prayerMosqueId() const { return m_prayerMosqueId; }
+    void setPrayerMosqueId(const QString &id);
     QString configPath() const { return m_path; }
 
     Q_INVOKABLE void reload();
@@ -66,6 +69,7 @@ signals:
     void micSensitivityChanged();
     void micDeviceIdChanged();
     void themePresetChanged();
+    void prayerMosqueIdChanged();
 
 private:
     void load();
@@ -87,4 +91,5 @@ private:
     double m_micSensitivity = 6.0;        // gain micro → amplitude des vagues (× courbe √)
     QString m_micDeviceId;                // micro choisi (vide = défaut Windows)
     QString m_themePreset = QStringLiteral("cyan");
+    QString m_prayerMosqueId;             // slug mawaqit.net (vide = API Aladhan par ville)
 };

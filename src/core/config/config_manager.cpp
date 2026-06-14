@@ -35,6 +35,7 @@ void ConfigManager::load()
     m_prayerCity     = s.value(QStringLiteral("Prayer/prayer_city"), QStringLiteral("Brussels")).toString();
     m_prayerCountry  = s.value(QStringLiteral("Prayer/prayer_country"), QStringLiteral("Belgium")).toString();
     m_prayerMethod   = s.value(QStringLiteral("Prayer/prayer_method"), 2).toInt();
+    m_prayerMosqueId = s.value(QStringLiteral("Prayer/prayer_mosque_id"), QString()).toString();
 
     m_effect3dEnabled = s.value(QStringLiteral("Display/effect_3d"), true).toBool();
     m_sphereDensity   = s.value(QStringLiteral("Display/sphere_density"), 4200).toInt();
@@ -112,6 +113,17 @@ void ConfigManager::setThemePreset(const QString &name)
     emit themePresetChanged();
 }
 
+void ConfigManager::setPrayerMosqueId(const QString &id)
+{
+    if (id == m_prayerMosqueId)
+        return;
+    m_prayerMosqueId = id;
+    QSettings s(m_path, QSettings::IniFormat);
+    s.setValue(QStringLiteral("Prayer/prayer_mosque_id"), id);
+    s.sync();
+    emit prayerMosqueIdChanged();
+}
+
 void ConfigManager::writeDefault()
 {
     QFile f(m_path);
@@ -149,7 +161,11 @@ void ConfigManager::writeDefault()
         << "prayer_use_api = true\n"
         << "prayer_city = Brussels\n"
         << "prayer_country = Belgium\n"
-        << "; Methode de calcul : 2=ISNA, 3=MWL, 5=Egypt, ...\n"
-        << "prayer_method = 2\n";
+        << "; Methode de calcul Aladhan : 2=ISNA, 3=MWL, 5=Egypt, ...\n"
+        << "prayer_method = 2\n"
+        << "; Horaires d'une mosquee precise via mawaqit.net : colle ici le slug de\n"
+        << "; l'URL mawaqit.net/fr/<slug> (vide = calcul Aladhan par ville ci-dessus).\n"
+        << "; A choisir plutot dans Reglages.\n"
+        << "prayer_mosque_id =\n";
     f.close();
 }
